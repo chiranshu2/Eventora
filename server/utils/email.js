@@ -11,8 +11,15 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+const ensureEmailConfig = () => {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+        throw new Error('EMAIL_USER and EMAIL_PASS are not configured.');
+    }
+};
+
 const sendBookingEmail = async (userEmail, userName, eventTitle) => {
     try {
+        ensureEmailConfig();
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: userEmail,
@@ -27,11 +34,13 @@ const sendBookingEmail = async (userEmail, userName, eventTitle) => {
         console.log('Email sent successfully to', userEmail);
     } catch (error) {
         console.error('Error sending email:', error);
+        throw error;
     }
 };
 
 const sendOTPEmail = async (userEmail, otp, type) => {
     try {
+        ensureEmailConfig();
         const title = type === 'account_verification' ? 'Verify your Eventora Account' : 'Eventora Booking Verification';
         const msg = type === 'account_verification' ?
             'Please use the following OTP to verify your new Eventora account.' :
@@ -56,6 +65,7 @@ const sendOTPEmail = async (userEmail, otp, type) => {
         console.log(`OTP sent to ${userEmail} for ${type}`);
     } catch (error) {
         console.error('Error sending OTP email:', error);
+        throw error;
     }
 };
 
